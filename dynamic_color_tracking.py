@@ -1,8 +1,9 @@
-# python dynamic_color_tracking.py --filter HSV --webcam
+# python dynamic_color_tracking.py <name_of_color>
 from picamera.array import PiRGBArray
 from picamera import PiCamera
 import time
 import cv2
+import sys
 import argparse
 import numpy as np
  
@@ -10,67 +11,19 @@ import numpy as np
 def callback(value):
     pass
  
- 
-def setup_trackbars(range_filter):
-    cv2.namedWindow("Trackbars", 0)
- 
-    for i in ["MIN", "MAX"]:
-        v = 0 if i == "MIN" else 255
- 
-        for j in range_filter:
-            cv2.createTrackbar("%s_%s" % (j, i), "Trackbars", v, 255, callback)
- 
- 
-def get_arguments():
-    ap = argparse.ArgumentParser()
-    ap.add_argument('-f', '--filter', required=True,
-                    help='Range filter. RGB or HSV')
-    ap.add_argument('-w', '--webcam', required=False,
-                    help='Use webcam', action='store_true')
-    args = vars(ap.parse_args())
- 
-    if not args['filter'].upper() in ['RGB', 'HSV']:
-        ap.error("Please speciy a correct filter.")
- 
-    return args
- 
- 
-def get_trackbar_values(range_filter):
-    values = []
- 
-    for i in ["MIN", "MAX"]:
-        for j in range_filter:
-            v = cv2.getTrackbarPos("%s_%s" % (j, i), "Trackbars")
-            values.append(v)
-    return values
- 
- 
 def main():
-    args = get_arguments()
- 
-    range_filter = args['filter'].upper()
- 
-    #camera = cv2.VideoCapture(0)
+
     camera = PiCamera()
     camera.resolution = (640, 480)
     camera.framerate = 20
     rawCapture = PiRGBArray(camera, size=(640, 480))
-##    setup_trackbars(range_filter)
-    color = 'green'
- 
-##    while True:
-##        if args['webcam']:
-##            ret, image = camera.read()
-## 
-##            if not ret:
-##                break
-##
+
+    color = sys.argv[1]
+
     for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
         image = frame.array
-        if range_filter == 'RGB':
-            frame_to_thresh = image.copy()
-        else:
-            frame_to_thresh = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        
+        frame_to_thresh = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
         
         if color == 'red':
             v1_min, v2_min, v3_min, v1_max, v2_max, v3_max = 0,150,145,8,255,255
@@ -78,7 +31,7 @@ def main():
             v1_min, v2_min, v3_min, v1_max, v2_max, v3_max = 40,105,95,85,245,255
         else:
             v1_min, v2_min, v3_min, v1_max, v2_max, v3_max = 95,85,90,255,255,255
-        #v1_min, v2_min, v3_min, v1_max, v2_max, v3_max = get_trackbar_values(range_filter)
+        
  
         thresh = cv2.inRange(frame_to_thresh, (v1_min, v2_min, v3_min), (v1_max, v2_max, v3_max))
  
