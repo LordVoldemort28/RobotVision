@@ -13,14 +13,18 @@ import time
 class Section():
 
 	def __init__(self, x_min, x_max, y_min, y_max):
-		self.color = 'none'
+		self.color = None
 		self.x_min = x_min
 		self.x_max = x_max
 		self.y_min = y_min
 		self.y_max = y_max
 
 	def set_color(self, change_color):
-		set_color = change_color
+		self.color = change_color
+		
+        def get_color(self):
+                return color_ascii(self.color)
+                
 
 section = [Section] * 4
 section_done = [False] * 4
@@ -53,8 +57,9 @@ def print_each_section(x, y, color):
                     section[i].set_color(color)
                     section_done[i] = True
                     print((i+1), x, y, color)
-                    convert = {(i+1, color)}
+                    convert = [str(i+1), str(section[i].get_color())]
                     return convert
+        
         return None
     
                  
@@ -89,7 +94,7 @@ def camera_function():
 	
         #Setting up the timer
 	timeout = time.time() + 5
-	final_value = {}
+	final_value = []
 	for image in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
                 
                 times = 0
@@ -115,11 +120,11 @@ def camera_function():
                             cv2.circle(frame, (int(x), int(y)), int(radius), colors[key], 2)
 	                    cv2.putText(frame,key + " ball", (int(x-radius),int(y-radius)), cv2.FONT_HERSHEY_SIMPLEX, 0.6,colors[key],2)
 	                    value = print_each_section(center[0], center[1], key)
-##		cv2.imshow("Frame", frame)
-##	cv2.imshow("Mask", mask)
+		cv2.imshow("Frame", frame)
+                cv2.imshow("Mask", mask)
 		rawCapture.truncate(0)
 		if value != None:
-                    final_value += str(value)
+                    final_value.extend(value)
                      
 		if time.time() > timeout:
                     break
@@ -131,9 +136,9 @@ def give_me_some_numbers():
     
     numbers = camera_function()
     print(numbers)
-    return numbers
+##    return numbers
     
- 
+give_me_some_numbers()
     
     
     
