@@ -13,7 +13,7 @@ import csv
 
 class Section():
 
-	def __init__(self, x_min, x_max, y_min, y_max):
+    def __init__(self, x_min, x_max, y_min, y_max):
 		self.color = None
 		self.x = None
 		self.y = None
@@ -177,7 +177,7 @@ def write_values_to_excel():
         print((i+1), section[i].get_x(), section[i].get_y(), section[i].get_color())
 
 def formatter_for_audrino(color, x_robotic_arm, y_robotic_arm, z_robotic_arm):
-    return str(round(color,3))+','+str(round(x_robotic_arm,3))+','str(round(y_robotic_arm,3))+','str(round(z_robotic_arm,3))+';'
+    return str(color)+','+str(round(x_robotic_arm,3))+','+str(round(y_robotic_arm,3))+','+str(round(z_robotic_arm,3))+';'
 
         
 def coordinates_calculator(side, x_robotics):
@@ -185,6 +185,7 @@ def coordinates_calculator(side, x_robotics):
     #Ratio to pixel average by inch diameter 122/1.57 = 77.70
     PIXEL_TO_INCH_WIDTH = 8.23 #640/77.70
     PIXEL_TO_INCH_HIEGHT = 6.24  #480/77.70
+    DIAMETER_RATIO = 77.07
     
     #Translation from camera to robotic arm
     x_translation = 0
@@ -199,12 +200,15 @@ def coordinates_calculator(side, x_robotics):
     
     #if in_range(x, 19, 20) == True:
     for i in range(0, 4):
-        if section[i].get_color != None:
+        if section[i].get_color() != None:
             no_ball = False
-           if side == 1:
-               z_camera = -z_camera
-            x_camera = section[i].get_x()
-            y_camera = PIXEL_TO_INCH_HIEGHT -section[i].get_y()
+            formatted_coordinates =''
+            if side == 1:
+                z_camera = -z_camera
+            x_camera = float(section[i].get_x()) / DIAMETER_RATIO
+            y_camera = PIXEL_TO_INCH_HIEGHT - (float(section[i].get_y()) / DIAMETER_RATIO)
+            
+            print(x_camera, y_camera)
             
             x_robotic_arm = (-z_camera) + x_translation
             y_robotic_arm = x_camera + y_translation
@@ -217,7 +221,7 @@ def coordinates_calculator(side, x_robotics):
     if no_ball == True:
         return ';404;'
     else:
-        retrun format
+        return format
     
 def give_me_some_numbers(string_value):
     
