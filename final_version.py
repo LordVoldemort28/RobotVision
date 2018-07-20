@@ -63,11 +63,11 @@ def in_range(variable, num1, num2):
 	    
 def ascii_color(color):
     if color == 'red':
-        return '0;'
+        return '0'
     elif color == 'green':
-        return '1;'
+        return '1'
     elif color == 'blue' :
-        return '2;'
+        return '2'
     else:
         return None
 
@@ -114,7 +114,7 @@ def camera_function():
 	
     
     #Setting up the timer
-	timeout = time.time() + 2
+	timeout = time.time() + 5
 	
 	final_value = []
 	
@@ -149,7 +149,7 @@ def camera_function():
                             cv2.circle(frame, (int(x), int(y)), int(radius), colors[key], 2)
 	                    cv2.putText(frame,key + " ball", (int(x-radius),int(y-radius)), cv2.FONT_HERSHEY_SIMPLEX, 0.6,colors[key],2)
 	                    print_each_section(center[0], center[1], key, radius)
-	                    with open('pixel_coordinates.csv', 'a') as newFile:
+	                    with open('pixel_coordinates2.csv', 'a') as newFile:
                                 newFileWriter = csv.writer(newFile)
                                 newFileWriter.writerow([radius*2, center[0], center[1], key, radius])
 	                
@@ -168,7 +168,7 @@ def camera_function():
 def write_values_to_excel():
     with open('section_coordinates.csv', 'a') as newFile:
                                 newFileWriter = csv.writer(newFile)
-                                newFileWriter.writerow(['*************', '*************', '*************', '*************'])
+                                newFileWriter.writerow(['*************'])
     
     for i in range(0,4):
         with open('section_coordinates.csv', 'a') as newFile2:
@@ -177,7 +177,7 @@ def write_values_to_excel():
         print((i+1), section[i].get_x(), section[i].get_y(), section[i].get_color())
 
 def formatter_for_audrino(color, x_robotic_arm, y_robotic_arm, z_robotic_arm):
-    return str(color)+','+str(round(x_robotic_arm,3))+','+str(round(y_robotic_arm,3))+','+str(round(z_robotic_arm,3))+';'
+    return str(color)+','+str(round(x_robotic_arm,2))+','+str(round(y_robotic_arm,2))+','+str(round(z_robotic_arm,2))+';'
 
         
 def coordinates_calculator(side, x_robotics):
@@ -185,7 +185,7 @@ def coordinates_calculator(side, x_robotics):
     #Ratio to pixel average by inch diameter 122/1.57 = 77.70
     PIXEL_TO_INCH_WIDTH = 8.23 #640/77.70
     PIXEL_TO_INCH_HIEGHT = 6.24  #480/77.70
-    DIAMETER_RATIO = 77.07
+    DIAMETER_RATIO =77.70 #81.3
     
     #Translation from camera to robotic arm
     x_translation = 0
@@ -200,23 +200,24 @@ def coordinates_calculator(side, x_robotics):
     
     #if in_range(x, 19, 20) == True:
     for i in range(0, 4):
+        formatted_coordinates =''
         if section[i].get_color() != None:
             no_ball = False
+            
             formatted_coordinates =''
             if side == 1:
                 z_camera = -z_camera
             x_camera = float(section[i].get_x()) / DIAMETER_RATIO
             y_camera = PIXEL_TO_INCH_HIEGHT - (float(section[i].get_y()) / DIAMETER_RATIO)
             
-            print(x_camera, y_camera)
-            
             x_robotic_arm = (-z_camera) + x_translation
             y_robotic_arm = x_camera + y_translation
-            z_robotic_arm = (-y_camera) + z_translation
+            z_robotic_arm = (-y_camera) + z_translation +3.5
 
             color = section[i].get_ascii_color()
             formatted_coordinates = formatter_for_audrino(color, x_robotic_arm, y_robotic_arm, z_robotic_arm)
-        format = format+formatted_coordinates
+        
+        format += formatted_coordinates
 
     if no_ball == True:
         return ';404;'
@@ -232,7 +233,7 @@ def give_me_some_numbers(string_value):
     
     with open('pixel_coordinates.csv', 'a') as newFile:
                                 newFileWriter = csv.writer(newFile)
-                                newFileWriter.writerow(['*************', '*************', '*************', '*************'])
+                                newFileWriter.writerow(['*************'])
     
     #Starting Image processing 
     camera_function()
@@ -244,9 +245,9 @@ def give_me_some_numbers(string_value):
     write_values_to_excel()
 
     #Writing format in text file 
-    file = open('format_storage', 'a')
-    file.write(format+'\n')
-    file.close()
+##    file = open('format_storage', 'a')
+##    file.write(format+'\n')
+##    file.close()
 
     return format
     
