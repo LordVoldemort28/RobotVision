@@ -180,10 +180,10 @@ def camera_function():
 	                    cv2.putText(frame,key + " ball", (int(x-radius),int(y-radius)), cv2.FONT_HERSHEY_SIMPLEX, 0.6,colors[key],2)
 	                    
                         #Sending values to store them 
-                        print_each_section(center[0], center[1], key, radius)
+                            print_each_section(center[0], center[1], key, radius)
 
                         #Storing each value in an excle file for analysis
-	                    with open('pixel_coordinates2.csv', 'a') as newFile:
+                            with open('pixel_coordinates2.csv', 'a') as newFile:
                                 newFileWriter = csv.writer(newFile)
                                 newFileWriter.writerow([radius*2, center[0], center[1], key, radius])
 	                
@@ -198,6 +198,8 @@ def camera_function():
 		timer -= 1
 	
         cv2.destroyAllWindows()
+        camera.stop_preview()
+        camera.close()
 
         
 def write_values_to_excel():
@@ -242,8 +244,9 @@ def coordinates_calculator(side, x_robotics):
             no_ball = False
             
             formatted_coordinates =''
-            if side == 0:
-                x_robotic_arm = (-x_robotic_arm)
+            side = int(side)
+            if side is -1:
+                x_robotic_arm = -(x_robotic_arm)
             # x_camera = float(section[i].get_x()) / DIAMETER_RATIO
             # y_camera = PIXEL_TO_INCH_HIEGHT - (float(section[i].get_y()) / DIAMETER_RATIO)
             
@@ -268,19 +271,20 @@ def coordinates_calculator(side, x_robotics):
     else:
         return format
     
-def give_me_some_numbers(string_value):
+def give_me_some_numbers(distance_from_board, side):
     
     #Data splitting from audrino
-    value = string_value.replace(";","")
-    data = value.split(',')
-    side, distance_from_board = data[0], data[1]
+    #value = string_value.replace(";","")
+    #data = value.split(',')
+    #distance_from_board, side = data[0], data[1]
     
     with open('pixel_coordinates.csv', 'a') as newFile:
                                 newFileWriter = csv.writer(newFile)
                                 newFileWriter.writerow(['*************'])
     
-    #Starting Image processing 
-    camera_function()
+    #Starting Image processing 	
+    if side != 0:
+        camera_function()
     
     #Passing format coordinates
     format = coordinates_calculator(side, distance_from_board)    
@@ -296,7 +300,7 @@ def give_me_some_numbers(string_value):
     return format
     
 
-print(give_me_some_numbers(';0,30;'))
+#print(give_me_some_numbers(';0,30;'))
     
 
 
