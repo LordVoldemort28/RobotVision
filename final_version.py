@@ -12,6 +12,7 @@ import re
 import csv
 
 
+
 class Section():
 
     """ Section class contain the area of section in the whole image and after the detection of ball in 
@@ -103,6 +104,7 @@ def setting_section(resolution_width, resolution_length):
 	section[1] = Section(resolution_width/2, resolution_width, 0, resolution_length/2)
 	section[2] = Section(0, resolution_width/2, resolution_length/2, resolution_length)
 	section[3] = Section(resolution_width/2, resolution_width, resolution_length/2, resolution_length)
+        
 
 """
 Print each section takes value from image processing and check pixels for section division. 
@@ -111,16 +113,19 @@ It also store valid color, radius and pixel x and y coordinates
 def print_each_section(pixel_x, pixel_y, color, radius):
     
     for i in range(0,4):
-        if section_done[i] == False and in_range(pixel_x, section[i].x_min, section[i].x_max) == True and in_range(pixel_y, section[i].y_min, section[i].y_max):
+        if section_done[i] == False and in_range(pixel_x, section[i].x_min, section[i].x_max) == True and in_range(pixel_y, section[i].y_min, section[i].y_max) == True:
             section[i].set_color(color)
             section_done[i] = True
             section[i].set_x(pixel_x)
             section[i].set_y(pixel_y)
             section[i].set_radius(radius)
+            
+            #cv2.imwrite("image.jpg",frame)
             #print((i+1), pixel_x, pixel_y, color)
         
 """
-Main image processing funtion 
+Main image processing funtion
+
 """
 def camera_function():
     #Setting up color boundaries   
@@ -181,6 +186,7 @@ def camera_function():
 	                    
                         #Sending values to store them 
                             print_each_section(center[0], center[1], key, radius)
+                            
 
                         #Storing each value in an excle file for analysis
                             with open('pixel_coordinates2.csv', 'a') as newFile:
@@ -203,7 +209,7 @@ def camera_function():
 
         
 def write_values_to_excel():
-    with open('section_coordinates.csv', 'a') as newFile:
+    with open('section_coordinatees.csv', 'a') as newFile:
                                 newFileWriter = csv.writer(newFile)
                                 newFileWriter.writerow(['*************'])
     
@@ -211,27 +217,26 @@ def write_values_to_excel():
         with open('section_coordinates.csv', 'a') as newFile2:
                                 newFileWriter2 = csv.writer(newFile2)
                                 newFileWriter2.writerow([(i+1), section[i].get_x(), section[i].get_y(), section[i].get_color()])
-        print((i+1), section[i].get_x(), section[i].get_y(), section[i].get_color())
+                                print((i+1), section[i].get_x(), section[i].get_y(), section[i].get_color())
+        
 
 """ Formatter for audrino :color,x_r,y_r,z_r:
 """
 def formatter_for_audrino(color, x_robotic_arm, y_robotic_arm, z_robotic_arm):
     return str(color)+','+str(round(x_robotic_arm,2))+','+str(round(y_robotic_arm,2))+','+str(round(z_robotic_arm,2))+';'
 
-        
+
+#Y = 6.64, 1.64
 def coordinates_calculator(side, x_robotics):
     #Diameter Average is 102
     #Ratio to pixel average by inch diameter 122/1.57 = 77.70
     PIXEL_TO_INCH_WIDTH = 8.23 #640/77.70
     PIXEL_TO_INCH_HIEGHT = 6.24  #480/77.70
-    DIAMETER_RATIO =77.70 #81.3
+    DIAMETER_RATIO =82.5#81.3
     
-    #Translation from camera to robotic arm
-    x_translation = 0
-    y_translation = 4.875
-    z_translation = 6
     
     x_robotic_arm = 7.50
+    side = int(side)
     z_camera = 7.50
 
     no_ball = True
@@ -239,27 +244,25 @@ def coordinates_calculator(side, x_robotics):
     
     #if in_range(x, 19, 20) == True:
     for i in range(0, 4):
+        
         formatted_coordinates =''
         if section[i].get_color() != None:
+            y = 640 - float(section[i].get_x()) 
             no_ball = False
             
             formatted_coordinates =''
-            side = int(side)
-            if side is -1:
-                x_robotic_arm = -(x_robotic_arm)
-            # x_camera = float(section[i].get_x()) / DIAMETER_RATIO
-            # y_camera = PIXEL_TO_INCH_HIEGHT - (float(section[i].get_y()) / DIAMETER_RATIO)
             
-            # x_robotic_arm = (-z_camera) + x_translation
-            # y_robotic_arm = x_camera + y_translation
-            # z_robotic_arm = (-y_camera) + z_translation +3.5
+            if side == -1:
+                y = float(section[i].get_x())
+                x_robotic_arm = -7.50
+            
 
             if (i+1) == 1 or (i+1) == 2:
                 z_robotic_arm = 11
             else:
                 z_robotic_arm = 7
 
-            y_robotic_arm = float(section[i].get_x()) / DIAMETER_RATIO 
+            y_robotic_arm = y / DIAMETER_RATIO
 
             color = section[i].get_ascii_color()
             formatted_coordinates = formatter_for_audrino(color, x_robotic_arm, y_robotic_arm, z_robotic_arm)
@@ -273,11 +276,7 @@ def coordinates_calculator(side, x_robotics):
     
 def give_me_some_numbers(distance_from_board, side):
     
-    #Data splitting from audrino
-    #value = string_value.replace(";","")
-    #data = value.split(',')
-    #distance_from_board, side = data[0], data[1]
-    
+
     with open('pixel_coordinates.csv', 'a') as newFile:
                                 newFileWriter = csv.writer(newFile)
                                 newFileWriter.writerow(['*************'])
@@ -296,11 +295,14 @@ def give_me_some_numbers(distance_from_board, side):
     file = open('format_storage', 'a')
     file.write(format+'\n')
     file.close()
-
+    
+    for i in range(0,4):
+        section_done[i] = False
+    
     return format
     
 
-#print(give_me_some_numbers(';0,30;'))
-    
+#print(give_me_some_numbers(1,-1))
+
 
 

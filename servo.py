@@ -2,7 +2,9 @@ import sys
 import io
 import time
 import serial
+from subprocess import call
 import final_version as camera
+
 
 #TO add this file in bash script
 #sudo nano .bashrc
@@ -48,13 +50,18 @@ def servo_file_function():
             try:
                 #time.sleep(2)
                 print('Camera Run')
-                values = camera.give_me_some_numbers(distance_from_board, side)
+                
+	        values = camera.give_me_some_numbers(distance_from_board, side)
+                #values = ';0,7.5,2.25,11;0,7.5,7.5,7;'
+	        timestr = time.strftime("%Y%m%d%H%M%S")
+                call("raspistill -w 640 -h 480 -o ./Picture/Image_"+timestr+".png",shell=True)
                 ser1.write(values)
                 print(values+'\n')
             except:
                 continue
             
-            
+
+
 
 servo_file_function()
             
