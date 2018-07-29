@@ -2,6 +2,7 @@ import sys
 import io
 import time
 import serial
+import subprocess
 from subprocess import call
 import final_version as camera
 
@@ -31,39 +32,57 @@ def servo_file_function():
         
         
         if d != '':
-            print('Passed Go')
-            
-            file = open('package_from_audrino.txt', 'a')
-            file.write(d+'\n')
-            file.close()
-            
-            print(d+'\n')
-            
-            try:
-                value = d.replace(';','')
-                data = value.split(',')
-                distance_from_board, side = data[0], data[1]
-            except:
-                print('Shit Package')
+            if len(d) is 5 or len(d) is 6:
+                print('Passed Go')
+                
+                file = open('package_from_audrino.txt', 'a')
+                file.write(d+'\n')
+                file.close()
+                
+                print(d+'\n')
+                
+                try:
+                    value = d.replace(';','')
+                    data = value.split(',')
+                    distance_from_board, side = data[0], data[1]
+                except:
+                    print('Shit Package')
+                    servo_file_function()
+                    
+                try:
+                    #time.sleep(2)
+                    print('Camera Run')
+                    
+                    values = camera.give_me_some_numbers(distance_from_board, side)
+                    ser1.write(values)
+                    print(values+'\n')
+                except:
+                    continue
+            else:
                 servo_file_function()
                 
-            try:
-                #time.sleep(2)
-                print('Camera Run')
-                
-	        values = camera.give_me_some_numbers(distance_from_board, side)
-                #values = ';0,7.5,2.25,11;0,7.5,7.5,7;'
-	        timestr = time.strftime("%Y%m%d%H%M%S")
-                call("raspistill -w 640 -h 480 -o ./Picture/Image_"+timestr+".png",shell=True)
-                ser1.write(values)
-                print(values+'\n')
-            except:
-                continue
+#Arduino SA Mega
+def check_usb():
+    
+    p = subprocess.Popen("lsusb", stdout = subprocess.PIPE, shell=True)
+    
+    output = p.communicate()
+    console_output = str(output).split(' ')
+    
+    flag = False
+    for each_word in console_output:
+        #print(each_word)
+        if each_word =='Arduino':
+            print('Yes')
+            servo_file_function()
             
-
-
-
-servo_file_function()
+            flag = True
+    if flag is False:
+        print('Wating for usb to connect..........')
+        check_usb()
+    
+    
+check_usb()
             
 
     
