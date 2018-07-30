@@ -199,18 +199,18 @@ def camera_function():
 
 def print_section():
     for i in range(0,4):
-        print(str(i+1)+' '+str(section[i].get_x())+' '+str(section[i].get_y())+' '+str(section[i].get_color()+'\n'))
+        print((i+1), section[i].get_x(), section[i].get_y(), section[i].get_color())
         
 def write_values_to_text(side):
     if side is -1:
 
-        text_file = open('side_'+side+'.txt', 'a') 
-        text_file.write(section[0].get_ascii_color()+';'+section[2].get_ascii_color()+';\n')
-        text_file.write(section[1].get_ascii_color()+';'+section[3].get_ascii_color()+';\n')
+        text_file = open('side_'+str(side)+'.txt', 'a') 
+        text_file.write(str(section[0].get_ascii_color())+';'+str(section[2].get_ascii_color())+';\n')
+        text_file.write(str(section[1].get_ascii_color())+';'+str(section[3].get_ascii_color())+';\n')
     else:
-        text_file = open('side_'+side+'.txt', 'a') 
-        text_file.write(section[1].get_ascii_color()+';'+section[3].get_ascii_color()+';\n')
-        text_file.write(section[0].get_ascii_color()+';'+section[1].get_ascii_color()+';\n')
+        text_file = open('side_'+str(side)+'.txt', 'a') 
+        text_file.write(str(section[1].get_ascii_color())+';'+str(section[3].get_ascii_color())+';\n')
+        text_file.write(str(section[0].get_ascii_color())+';'+str(section[2].get_ascii_color())+';\n')
     
     text_file.close()
 """ Formatter for audrino :color,x_r,y_r,z_r:
@@ -223,8 +223,8 @@ def coordinates_calculator(side, x_robotics):
     no_ball = True
     format =';'
 
-    right[4] = ['8.60,7.40,10.50;', '7.90,1.20,10.50;', '8.10,6.40,7.00;', '7.80,1.20,7.00;']
-    left[4] = ['-8.00,1.20,10.50;', '-8.20,6.40,10.50', '-7.80,1.20,7.00;', '-8.00,6.20,7.00;']
+    right = ['8.60,7.40,10.50;', '7.90,1.20,10.50;', '8.10,6.40,7.00;', '7.80,1.20,7.00;']
+    left = ['-8.00,1.20,10.50;', '-8.20,6.40,10.50;', '-7.80,1.20,7.00;', '-8.00,6.20,7.00;']
   
     
     #if in_range(x, 19, 20) == True:
@@ -266,7 +266,7 @@ def give_me_some_numbers(distance_from_board, side):
     format = coordinates_calculator(side, distance_from_board)    
 
     #Writing results to excel file
-    write_values_to_excel()
+    write_values_to_text(side)
 
     #Writing format in text file 
     file = open('format_storage', 'a')
@@ -279,7 +279,7 @@ def give_me_some_numbers(distance_from_board, side):
     return format
     
 
-#print(give_me_some_numbers(1,-1))
+print(give_me_some_numbers(1,-1))
 
 
 
