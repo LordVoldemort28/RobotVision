@@ -119,9 +119,7 @@ def print_each_section(pixel_x, pixel_y, color, radius):
             section[i].set_x(pixel_x)
             section[i].set_y(pixel_y)
             section[i].set_radius(radius)
-            
-            #cv2.imwrite("image.jpg",frame)
-            #print((i+1), pixel_x, pixel_y, color)
+
         
 """
 Main image processing funtion
@@ -188,16 +186,6 @@ def camera_function():
 	                    
                         #Sending values to store them 
                             print_each_section(center[0], center[1], key, radius)
-                            
-
-                        #Storing each value in an excle file for analysis
-##                            with open('pixel_coordinates2.csv', 'a') as newFile:
-##                                newFileWriter = csv.writer(newFile)
-##                                newFileWriter.writerow([radius*2, center[0], center[1], key, radius])
-	                
-            
-                cv2.imshow("Mask", mask)
-                cv2.imshow("Frame", frame)
                 rawCapture.truncate(0)
                    
                     
@@ -209,42 +197,35 @@ def camera_function():
         camera.stop_preview()
         camera.close()
 
-        
-def write_values_to_excel():
-    with open('section_coordinatees.csv', 'a') as newFile:
-                                newFileWriter = csv.writer(newFile)
-                                newFileWriter.writerow(['*************'])
-    
+def print_section():
     for i in range(0,4):
-        with open('section_coordinates.csv', 'a') as newFile2:
-                                newFileWriter2 = csv.writer(newFile2)
-                                newFileWriter2.writerow([(i+1), section[i].get_x(), section[i].get_y(), section[i].get_color()])
-                                print((i+1), section[i].get_x(), section[i].get_y(), section[i].get_color())
+        print(str(i+1)+' '+str(section[i].get_x())+' '+str(section[i].get_y())+' '+str(section[i].get_color()+'\n'))
         
+def write_values_to_text(side):
+    if side is -1:
 
+        text_file = open('side_'+side+'.txt', 'a') 
+        text_file.write(section[0].get_ascii_color()+';'+section[2].get_ascii_color()+';\n')
+        text_file.write(section[1].get_ascii_color()+';'+section[3].get_ascii_color()+';\n')
+    else:
+        text_file = open('side_'+side+'.txt', 'a') 
+        text_file.write(section[1].get_ascii_color()+';'+section[3].get_ascii_color()+';\n')
+        text_file.write(section[0].get_ascii_color()+';'+section[1].get_ascii_color()+';\n')
+    
+    text_file.close()
 """ Formatter for audrino :color,x_r,y_r,z_r:
 """
-def formatter_for_audrino(color, x_robotic_arm, y_robotic_arm, z_robotic_arm):
-    return str(color)+','+str(round(x_robotic_arm,2))+','+str(round(y_robotic_arm,2))+','+str(round(z_robotic_arm,2))+';'
-
 
 #Y = 6.64, 1.64
 def coordinates_calculator(side, x_robotics):
-    #Diameter Average is 102
-    #Ratio to pixel average by inch diameter 122/1.57 = 77.70
-    PIXEL_TO_INCH_WIDTH = 7.5/640 #640/77.70
-    PIXEL_TO_INCH_HIEGHT = 5.2/480  #480/77.70
-    DIAMETER_RATIO =82.5#81.3
-    
-   # section_1 = 7.5, 1.64, 11 7.5,6.64, 7
-    
-    
-    x_robotic_arm = 7.55
-    side = int(side)
-    z_camera = 7.50
 
+    side = int(side)
     no_ball = True
     format =';'
+
+    right[4] = ['8.60,7.40,10.50;', '7.90,1.20,10.50;', '8.10,6.40,7.00;', '7.80,1.20,7.00;']
+    left[4] = ['-8.00,1.20,10.50;', '-8.20,6.40,10.50', '-7.80,1.20,7.00;', '-8.00,6.20,7.00;']
+  
     
     #if in_range(x, 19, 20) == True:
     for i in range(0, 4):
@@ -255,34 +236,13 @@ def coordinates_calculator(side, x_robotics):
             no_ball = False
             
             formatted_coordinates =''
-            
-            if i == 0 or i == 2:
-                y_robotic_arm = 6.64
-            else:
-                y_robotic_arm = 1.64
-            
-            if side == -1:
-                #y = float(section[i].get_x())
-                x_robotic_arm = -7.50
-                if i == 0 or i == 2:
-                    y_robotic_arm = 1.64
-                else:
-                    y_robotic_arm = 6.64
-            
-            
-            #z_robotic_arm = ((480-float(section[i].get_y())) * PIXEL_TO_INCH_WIDTH) + 5.8
-
-            #y_robotic_arm = y * PIXEL_TO_INCH_WIDTH
-            if i == 0 or i == 1:
-                z_robotic_arm = 11
-            else:
-                z_robotic_arm = 7
-           
-            
-
             color = section[i].get_ascii_color()
-            #formatted_coordinates = formatter_for_audrino(color, x_robotic_arm, (y_robotic_arm-1), z_robotic_arm)
-            formatted_coordinates = formatter_for_audrino(color, x_robotic_arm, y_robotic_arm, z_robotic_arm)
+            if side is -1:
+                formatted_coordinates += str(color)+','+left[i]
+            else:
+                formatted_coordinates += str(color)+','+right[i]
+
+            
         
         format += formatted_coordinates
 
@@ -298,12 +258,15 @@ def give_me_some_numbers(distance_from_board, side):
     #Starting Image processing 	
     if side != 0:
         camera_function()
+
+    #Print Result
+    print_section()
     
     #Passing format coordinates
     format = coordinates_calculator(side, distance_from_board)    
 
     #Writing results to excel file
-    #write_values_to_excel()
+    write_values_to_excel()
 
     #Writing format in text file 
     file = open('format_storage', 'a')
