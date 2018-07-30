@@ -4,7 +4,7 @@ import time
 import serial
 import subprocess
 from subprocess import call
-import final_version as camera
+import hardcoded as camera
 
 
 #TO add this file in bash script
@@ -21,6 +21,47 @@ camPos: 1(right) or 0(left)
 '''
 
 
+##def servo_file_function():
+##    ser1 = serial.Serial('/dev/ttyACM0', 115200,
+##            timeout = 0, parity = serial.PARITY_NONE,
+##            stopbits = serial.STOPBITS_ONE,
+##            bytesize = serial.EIGHTBITS)
+##
+##    while True:
+##        d = ser1.readline()
+##        
+##        if d != '':
+##            ser1.write(';0,-7.5,1.64,11.00;1,-7.5,6.64,7.0;')
+##            print('debug:'+d)
+##            if len(d) is 5 or len(d) is 6:
+##                print('Passed Go')
+##                
+##                file = open('package_from_audrino.txt', 'a')
+##                file.write(d+'\n')
+##                file.close()
+##                
+##                print(d+'\n')
+##                
+##                try:
+##                    value = d.replace(';','')
+##                    data = value.split(',')
+##                    distance_from_board, side = data[0], data[1]
+##                except:
+##                    print('Shit Package')
+##                    servo_file_function()
+##                    
+##                try:
+##                    #time.sleep(2)
+##                    print('Camera Run')
+##                    
+##                    values = camera.give_me_some_numbers(distance_from_board, side)
+##                    #ser1.write(values)
+##                    print(values+'\n')
+##                except:
+##                    continue
+##            else:
+##                servo_file_function()
+
 def servo_file_function():
     ser1 = serial.Serial('/dev/ttyACM0', 115200,
             timeout = 0, parity = serial.PARITY_NONE,
@@ -28,39 +69,40 @@ def servo_file_function():
             bytesize = serial.EIGHTBITS)
 
     while True:
+        time.sleep(2)
         d = ser1.readline()
         
-        
         if d != '':
-            if len(d) is 5 or len(d) is 6:
-                print('Passed Go')
+            #ser1.write(';0,-7.5,1.64,11.00;1,-7.5,6.64,7.0;')
+            
+            print('debug:'+d)
+            
+            print('Passed Go')
                 
-                file = open('package_from_audrino.txt', 'a')
-                file.write(d+'\n')
-                file.close()
+            file = open('package_from_audrino.txt', 'a')
+            file.write(d+'\n')
+            file.close()
                 
-                print(d+'\n')
+            print(d+'\n')
                 
-                try:
-                    value = d.replace(';','')
-                    data = value.split(',')
-                    distance_from_board, side = data[0], data[1]
-                except:
-                    print('Shit Package')
-                    servo_file_function()
-                    
-                try:
-                    #time.sleep(2)
-                    print('Camera Run')
-                    
-                    values = camera.give_me_some_numbers(distance_from_board, side)
-                    ser1.write(values)
-                    print(values+'\n')
-                except:
-                    continue
-            else:
+            try:
+                value = d.replace(';','')
+                data = value.split(',')
+                distance_from_board, side = data[0], data[1]
+            except:
+                print('Shit Package')
                 servo_file_function()
-                
+                    
+            try:
+                    #time.sleep(2)
+                print('Camera Run')
+                    
+                values = camera.give_me_some_numbers(distance_from_board, side)
+                ser1.write(values)
+                print(values+'\n')
+            except:
+                continue
+            
 #Arduino SA Mega
 def check_usb():
     
